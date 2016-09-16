@@ -50,7 +50,3 @@ def nova_metadata(domain):
       }
   }
 
-
-def now():
-  return datetime.datetime.now().isoformat()
-
