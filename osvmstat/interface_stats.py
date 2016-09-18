@@ -14,27 +14,34 @@
 # limitations under the License.
 
 
-import common
 import json
 import libvirt
 import logging
 
 
-def block_device_stats(dom):
-  b = {}
-  for d in common.domain_xml(dom).findall("devices/disk/target"):
-    dev_name = d.get("dev")
-    stats = dom.blockStats(dev_name)
-    b.update({
-        dev_name: {
-            "rd_req": stats[0],
-            "rd_bytes": stats[1],
-            "wr_req": stats[2],
-            "wr_bytes": stats[3],
-            "errs": stats[4],},
-        "devices": [dev_name],
+from common import utils
+from common import exceptions
+
+
+def interface_macaddr_stats(dom):
+  i = {}
+  for d in utils.domain_xml(dom).findall("devices/interface"):
+    macaddr = d.find("mac").get("address")
+    dev_name = d.find("target").get("dev")
+    stats = dom.interfaceStats(dev_name)
+    i.update({
+        macaddr: {
+            "rx_bytes": stats[0],
+            "rx_packets": stats[1],
+            "rx_errs": stats[2],
+            "rx_drop": stats[3],
+            "tx_bytes": stats[4],
+            "tx_packets": stats[5],
+            "tx_errs": stats[6],
+            "tx_drop": stats[7],},
+        "devices": [macaddr],
     })
-  return b
+  return i
 
 
 def main():
@@ -42,17 +49,17 @@ def main():
 
   conn = libvirt.openReadOnly()
   if conn is None:
-    raise common.HypervisorConnectionFailError()
+    raise exceptions.HypervisorConnectionFailError()
 
   for id in conn.listDomainsID():
     dom = conn.lookupByID(id)
-    block_stats = block_device_stats(dom)
+    interface_stats = interface_macaddr_stats(dom)
     logging.info(json.dumps({
-        "nova": common.nova_metadata(dom),
+        "nova": utils.nova_metadata(dom),
         "uuid": dom.UUIDString(),
         "name": dom.name(),
         "id": dom.ID(),
-        "block_stats": block_stats,}))
+        "interface_stats": interface_stats,}))
 
 
 if __name__ == '__main__':

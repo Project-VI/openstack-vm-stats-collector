@@ -14,25 +14,39 @@
 # limitations under the License.
 
 
-import common
 import json
 import libvirt
 import logging
 
 
-def block_device_info(dom):
-  b = {}
-  for d in common.domain_xml(dom).findall("devices/disk/target"):
-    dev_name = d.get("dev")
-    info = dom.blockInfo(dev_name)
-    b.update({
-        dev_name: {
-            "capacity": info[0],
-            "allocation": info[1],
-            "physical": info[2],},
-        "devices": [dev_name],
-    })
-  return b
+from common import utils
+from common import exceptions
+
+
+def vcpu_state(state_code):
+  if state_code == libvirt.VIR_VCPU_OFFLINE:
+    state = "offline"
+  elif state_code == libvirt.VIR_VCPU_RUNNING:
+    state = "running"
+  elif state_code == libvirt.VIR_VCPU_BLOCKED:
+    state = "blocked"
+  elif state_code == libvirt.VIR_VCPU_LAST:
+    state = "last"
+  else:
+    state = "unknown"
+  return state
+
+
+def cpu_used_info(dom):
+  d = {}
+  for t in dom.vcpus()[0]:
+    d.update({
+        t[0]: {
+            "state": vcpu_state(t[1]),
+            "cpu_time": t[2],
+            "cpu": t[3],
+    }})
+  return d
 
 
 def main():
@@ -40,17 +54,17 @@ def main():
 
   conn = libvirt.openReadOnly()
   if conn is None:
-    raise common.HypervisorConnectionFailError()
+    raise exceptions.HypervisorConnectionFailError()
 
   for id in conn.listDomainsID():
     dom = conn.lookupByID(id)
-    block_info = block_device_info(dom)
+    vcpus = cpu_used_info(dom)
     logging.info(json.dumps({
-        "nova": common.nova_metadata(dom),
+        "nova": utils.nova_metadata(dom),
         "uuid": dom.UUIDString(),
         "name": dom.name(),
         "id": dom.ID(),
-        "block_info": block_info,}))
+        "vcpus": vcpus,}))
 
 
 if __name__ == '__main__':

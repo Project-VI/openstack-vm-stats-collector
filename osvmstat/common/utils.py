@@ -16,37 +16,16 @@ import datetime
 import xml.etree.ElementTree
 
 
-class AbortException(Exception):
-  # Base error class
-  pass
-
-
-class HypervisorConnectionFailError(AbortException):
-  """Raised on failed to open connection to the hypervisor.
-
-  Returns:
-    Strings for Error Logging.
-  """
-  def __init__(self):
-    AbortException.__init__(self)
-
-  def __str__(self):
-    return ("Failed to open connection to the hypervisor.")
-
-
 def domain_xml(domain):
   return xml.etree.ElementTree.fromstring(domain.XMLDesc())
 
 
 def nova_metadata(domain):
   metadata = xml.etree.ElementTree.fromstring(
-    domain.metadata(libvirt.VIR_DOMAIN_METADATA_ELEMENT,
-                    "http://openstack.org/xmlns/libvirt/nova/1.0"))
-  return {
-      "name": metadata.find("name").text,
-      "project": {
+      domain.metadata(libvirt.VIR_DOMAIN_METADATA_ELEMENT,
+      "http://openstack.org/xmlns/libvirt/nova/1.0"))
+  return {"name": metadata.find("name").text,
+          "project": {
           "uuid": metadata.find("owner/project").get("uuid"),
-          "name": metadata.find("owner/project").text
-      }
-  }
+          "name": metadata.find("owner/project").text}}
 

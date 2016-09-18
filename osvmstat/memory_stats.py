@@ -14,10 +14,13 @@
 # limitations under the License.
 
 
-import common
 import json
 import libvirt
 import logging
+
+
+from common import utils
+from common import exceptions
 
 
 def main():
@@ -25,12 +28,12 @@ def main():
 
   conn = libvirt.openReadOnly()
   if conn is None:
-    raise common.HypervisorConnectionFailError()
+    raise exceptions.HypervisorConnectionFailError()
 
   for id in conn.listDomainsID():
     dom = conn.lookupByID(id)
     logging.info(json.dumps({
-        "nova": common.nova_metadata(dom),
+        "nova": utils.nova_metadata(dom),
         "uuid": dom.UUIDString(),
         "name": dom.name(),
         "id": dom.ID(),
