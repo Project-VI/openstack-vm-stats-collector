@@ -16,7 +16,6 @@
 
 import json
 import libvirt
-import logging
 
 
 from common import utils
@@ -50,8 +49,6 @@ def cpu_used_info(dom):
 
 
 def main():
-  logging.basicConfig(level=logging.INFO,format='%(message)s',filemode='w')
-
   conn = libvirt.openReadOnly()
   if conn is None:
     raise exceptions.HypervisorConnectionFailError()
@@ -59,7 +56,7 @@ def main():
   for id in conn.listDomainsID():
     dom = conn.lookupByID(id)
     vcpus = cpu_used_info(dom)
-    logging.info(json.dumps({
+    print(json.dumps({
         "nova": utils.nova_metadata(dom),
         "uuid": dom.UUIDString(),
         "name": dom.name(),

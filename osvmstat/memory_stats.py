@@ -16,7 +16,6 @@
 
 import json
 import libvirt
-import logging
 
 
 from common import utils
@@ -24,15 +23,13 @@ from common import exceptions
 
 
 def main():
-  logging.basicConfig(level=logging.INFO,format='%(message)s',filemode='w')
-
   conn = libvirt.openReadOnly()
   if conn is None:
     raise exceptions.HypervisorConnectionFailError()
 
   for id in conn.listDomainsID():
     dom = conn.lookupByID(id)
-    logging.info(json.dumps({
+    print(json.dumps({
         "nova": utils.nova_metadata(dom),
         "uuid": dom.UUIDString(),
         "name": dom.name(),

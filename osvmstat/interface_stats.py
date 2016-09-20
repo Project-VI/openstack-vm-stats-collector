@@ -16,7 +16,6 @@
 
 import json
 import libvirt
-import logging
 
 
 from common import utils
@@ -45,8 +44,6 @@ def interface_macaddr_stats(dom):
 
 
 def main():
-  logging.basicConfig(level=logging.INFO,format='%(message)s',filemode='w')
-
   conn = libvirt.openReadOnly()
   if conn is None:
     raise exceptions.HypervisorConnectionFailError()
@@ -54,7 +51,7 @@ def main():
   for id in conn.listDomainsID():
     dom = conn.lookupByID(id)
     interface_stats = interface_macaddr_stats(dom)
-    logging.info(json.dumps({
+    print(json.dumps({
         "nova": utils.nova_metadata(dom),
         "uuid": dom.UUIDString(),
         "name": dom.name(),
