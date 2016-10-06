@@ -17,15 +17,16 @@ import xml.etree.ElementTree
 
 
 def domain_xml(domain):
-  return xml.etree.ElementTree.fromstring(domain.XMLDesc())
+    return xml.etree.ElementTree.fromstring(domain.XMLDesc())
 
 
 def nova_metadata(domain):
-  metadata = xml.etree.ElementTree.fromstring(
-      domain.metadata(libvirt.VIR_DOMAIN_METADATA_ELEMENT,
-      "http://openstack.org/xmlns/libvirt/nova/1.0"))
-  return {"name": metadata.find("name").text,
-          "project": {
-          "uuid": metadata.find("owner/project").get("uuid"),
-          "name": metadata.find("owner/project").text}}
-
+    metadata = xml.etree.ElementTree.fromstring(
+        domain.metadata(libvirt.VIR_DOMAIN_METADATA_ELEMENT,
+                        "http://openstack.org/xmlns/libvirt/nova/1.0"))
+    return {
+        "name": metadata.find("name").text,
+        "project": {
+            "uuid": metadata.find("owner/project").get("uuid"),
+            "name": metadata.find("owner/project").text
+            }}

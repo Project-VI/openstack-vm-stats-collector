@@ -23,20 +23,20 @@ from common import exceptions
 
 
 def main():
-  conn = libvirt.openReadOnly()
-  if conn is None:
-    raise exceptions.HypervisorConnectionFailError()
+    conn = libvirt.openReadOnly()
+    if conn is None:
+        raise exceptions.HypervisorConnectionFailError()
 
-  for id in conn.listDomainsID():
-    dom = conn.lookupByID(id)
-    print(json.dumps({
-        "nova": utils.nova_metadata(dom),
-        "uuid": dom.UUIDString(),
-        "name": dom.name(),
-        "id": dom.ID(),
-        "memory_stats": dom.memoryStats(),}))
+    for id in conn.listDomainsID():
+        dom = conn.lookupByID(id)
+        print(json.dumps({
+            "nova": utils.nova_metadata(dom),
+            "uuid": dom.UUIDString(),
+            "name": dom.name(),
+            "id": dom.ID(),
+            "memory_stats": dom.memoryStats(),
+            }))
 
 
 if __name__ == '__main__':
-  main()
-
+    main()

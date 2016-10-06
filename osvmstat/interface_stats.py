@@ -23,42 +23,43 @@ from common import exceptions
 
 
 def interface_macaddr_stats(dom):
-  i = {}
-  for d in utils.domain_xml(dom).findall("devices/interface"):
-    macaddr = d.find("mac").get("address")
-    dev_name = d.find("target").get("dev")
-    stats = dom.interfaceStats(dev_name)
-    i.update({
-        macaddr: {
-            "rx_bytes": stats[0],
-            "rx_packets": stats[1],
-            "rx_errs": stats[2],
-            "rx_drop": stats[3],
-            "tx_bytes": stats[4],
-            "tx_packets": stats[5],
-            "tx_errs": stats[6],
-            "tx_drop": stats[7],},
-        "devices": [macaddr],
-    })
-  return i
+    i = {}
+    for d in utils.domain_xml(dom).findall("devices/interface"):
+        macaddr = d.find("mac").get("address")
+        dev_name = d.find("target").get("dev")
+        stats = dom.interfaceStats(dev_name)
+        i.update({
+            macaddr: {
+                "rx_bytes": stats[0],
+                "rx_packets": stats[1],
+                "rx_errs": stats[2],
+                "rx_drop": stats[3],
+                "tx_bytes": stats[4],
+                "tx_packets": stats[5],
+                "tx_errs": stats[6],
+                "tx_drop": stats[7],
+                },
+            "devices": [macaddr],
+        })
+    return i
 
 
 def main():
-  conn = libvirt.openReadOnly()
-  if conn is None:
-    raise exceptions.HypervisorConnectionFailError()
+    conn = libvirt.openReadOnly()
+    if conn is None:
+        raise exceptions.HypervisorConnectionFailError()
 
-  for id in conn.listDomainsID():
-    dom = conn.lookupByID(id)
-    interface_stats = interface_macaddr_stats(dom)
-    print(json.dumps({
-        "nova": utils.nova_metadata(dom),
-        "uuid": dom.UUIDString(),
-        "name": dom.name(),
-        "id": dom.ID(),
-        "interface_stats": interface_stats,}))
+    for id in conn.listDomainsID():
+        dom = conn.lookupByID(id)
+        interface_stats = interface_macaddr_stats(dom)
+        print(json.dumps({
+            "nova": utils.nova_metadata(dom),
+            "uuid": dom.UUIDString(),
+            "name": dom.name(),
+            "id": dom.ID(),
+            "interface_stats": interface_stats,
+            }))
 
 
 if __name__ == '__main__':
-  main()
-
+    main()

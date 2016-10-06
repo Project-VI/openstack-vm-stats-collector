@@ -12,20 +12,20 @@
 
 
 class AbortException(Exception):
-  # Base error class
-  pass
+    # Base error class
+    pass
 
 
 class HypervisorConnectionFailError(AbortException):
-  """Raised on failed to open connection to the hypervisor.
 
-  Returns:
-    Strings for Error Logging.
-  """
-  def __init__(self):
-    AbortException.__init__(self)
+    """Raised on failed to open connection to the hypervisor.
 
-  def __str__(self):
-    return ("Failed to open connection to the hypervisor.")
+    Returns:
+      Strings for Error Logging.
+    """
 
+    def __init__(self):
+        AbortException.__init__(self)
 
+    def __str__(self):
+        return ("Failed to open connection to the hypervisor.")
